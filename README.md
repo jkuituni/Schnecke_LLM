@@ -1,6 +1,6 @@
 # Schnecke_LLM
 
-![Schnecke LLM Logo](https://github.com/jkuituni/Schnecke_LLM/images/Schnecke_LLM.jpg "")
+![Schnecke LLM Logo](https://github.com/jkuituni/Schnecke_LLM/blob/main/images/Schnecke_LLM.jpg "")
 
 Schnecke is a portable C89-based LLM inference engine for AmigaOS and classic systems, based on Andrej Karpathy’s llama2.c. It was created primarily as an experiment to see whether modern transformer inference could be made to run locally on vintage 68k Amiga hardware.
 
@@ -22,7 +22,7 @@ Schnecke began primarily as an experiment into local AI inference on classic har
 
 ##Screenshot
 
-![Schnecke LLM running on Amiga](https://github.com/jkuituni/Schnecke_LLM/images/Schnecke_Workbench.jpg "")
+![Schnecke LLM running on Amiga](https://github.com/jkuituni/Schnecke_LLM/blob/main/images/Workbench_Schnecke.jpg "")
 
 ##Requirements
 
