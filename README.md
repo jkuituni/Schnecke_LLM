@@ -1,4 +1,4 @@
-# Schnecke_LLM
+# Schnecke LLM
 
 ![Schnecke LLM Logo](https://github.com/jkuituni/Schnecke_LLM/blob/main/images/Schnecke_LLM.jpg "")
 
@@ -82,9 +82,12 @@ You should receive something like this;
 
 | System        | Model           | Precision | tokens/s | Approx. sec/token |
 |---------------|-----------------|-----------|----------|-------------------|
-| A4000 / 68060 | TinyStories 15M | FP32      | 0.046    | ~21s              |
+| FS-UAE (JIT)  | TinyStories 15M | FP32      | 0.046    | ~21s              |
+| A4000 / 68060 | TinyStories 15M | FP32      | 0.019    | ~51s              |
 
 This project is not intended to be fast. The purpose is experimentation, portability and technical curiosity.
+
+FS-UAE ran on Mac Mini M2Pro
 
 ## Known Limitations
 
