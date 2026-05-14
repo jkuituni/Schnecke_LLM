@@ -6,7 +6,7 @@ Schnecke is a portable C89-based LLM inference engine for AmigaOS and classic sy
 
 *"Because sometimes the question is not whether something should be done, but whether it could be done."*
 
-##Features
+## Features
 
 * Portable single-file C89 codebase
 * AmigaOS / Motorola 68k compatible
@@ -16,19 +16,19 @@ Schnecke is a portable C89-based LLM inference engine for AmigaOS and classic sy
 * Minimal dependencies
 * Based on llama2.c
 
-##Why?
+## Why?
 
 Schnecke began primarily as an experiment into local AI inference on classic hardware. The goal was not speed or practicality, but understanding what modern transformer inference fundamentally requires and how it actually works under the hood. Schnecke has been very valuable as an educational tool and journey. While Schnecke was developed primarily for AmigaOS and Motorola 68k systems, an effort was made to keep the code portable and dependency-light using mostly old-style C89-compatible code. Especially some old UNIX workstations would be an interesting target as they often have quite reasonable amount of CPU power but are similarly to the Amiga constrained by old versions of GCC compiler or even use the old K&R C compiler.
 
-##Screenshot
+## Screenshot
 
 ![Schnecke LLM running on Amiga](https://github.com/jkuituni/Schnecke_LLM/blob/main/images/Workbench_Schnecke.jpg "")
 
-##Requirements
+## Requirements
 
 While exact requirements depend on compile flags, I strongly recommended to have the fastest 68060 accelerator you can get your hands on.
 
-##Hardware
+## Hardware
 
 * Motorola 68060 accelerator
 * Accelerator local Fast RAM essential
@@ -36,20 +36,20 @@ While exact requirements depend on compile flags, I strongly recommended to have
 * Patience
 * Coffee
 
-##Software
+## Software
 
 * AmigaOS 3.x
 * GeekGadgets GCC environment
 * GCC 2.95+
 * libm
 
-##Building
+## Building
 
 *`gcc -noixemul -std=c89 -O2 schnecke.c -lm -o schnecke`*
 
 Compiler optimization flags such as -O2 are strongly recommended due to the computational cost of inference on classic hardware.
 
-##Running
+## Running
 
 To run Schnecke, you need both the actual model as well as the Tokenizer. To get the model, try downloading stories15M model from huggingface;
 
@@ -69,7 +69,7 @@ You should receive something like this;
 
 > Once upon a time there was a little girl named Lily. She loved to play with her toys and her friends. One day, Lily and her friends decided to have a race. They ran and ran until they reached a big tree. They were both very competitive and wanted to win. Lily's friend, Timmy, said, "I bet I can run faster than you!" but Lily replied, "I'm not the fastest, I'm just tall enough to beat you!" They both started to run as fast as they could. As they were running, Lily accidentally bumped into a small boy named Max. Max got upset and started to cry. Lily said, "I'm sorry, Max. I didn't mean to bump into you. Let's be friends and play together." Max stopped crying and smiled. From that day on, they were the best of friends and always played together.
 
-##Parameters:
+## Parameters:
 
 * -t : Temperature in [0,inf], default 1.0
 * -p : p value in top-p (nucleus) sampling in [0,1] default 0.9
@@ -78,7 +78,7 @@ You should receive something like this;
 * -z : Optional path to custom tokenizer, default $PROGDIR
 * -h : Prints Help.
 
-##Benchmarks
+## Benchmarks
 
 | System        | Model           | Precision | tokens/s | Approx. sec/token |
 |---------------|-----------------|-----------|----------|-------------------|
@@ -86,7 +86,7 @@ You should receive something like this;
 
 This project is not intended to be fast. The purpose is experimentation, portability and technical curiosity.
 
-##Known Limitations
+## Known Limitations
 
 * FP32 only (currently)
 * Slow inference on classic hardware
@@ -94,7 +94,7 @@ This project is not intended to be fast. The purpose is experimentation, portabi
 * No GPU acceleration
 * Minimalist architecture by design
 
-##Future Ideas
+## Future Ideas
 
 * FP16/Q8/Q4 support
 * Additional checkpoint formats
@@ -102,14 +102,14 @@ This project is not intended to be fast. The purpose is experimentation, portabi
 * More portable backends
 * Benchmark comparisons
 
-##Credits
+## Credits
 
 Schnecke is based heavily on Andrej Karpathy’s excellent llama2.c project.
 
 Original project:
 [https://github.com/karpathy/llama2.c](https://github.com/karpathy/llama2.c)
 
-##License
+## License
 
 Schnecke is licensed under the MIT License.
 
