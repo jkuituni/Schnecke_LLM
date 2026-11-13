@@ -8,13 +8,13 @@ Schnecke is a portable C89-based LLM inference engine for AmigaOS and classic sy
 
 ## Features
 
-* Portable single-file C89 codebase
+* Portable, single-file C89 codebase
 * AmigaOS / Motorola 68k compatible
-* Endian-safe checkpoint loading
-* FP32 inference support
-* TinyStories 15M verified working
+* Big-endian compatibility
+* FP32 and Q8_0 quantized inference support
+* Compatible with llama2.c model and tokenizer formats
 * Minimal dependencies
-* Based on llama2.c
+* Based on Andrej Karpathy's llama2.c
 
 ## Why?
 
@@ -26,22 +26,21 @@ Schnecke began primarily as an experiment into local AI inference on classic har
 
 ## Requirements
 
-While exact requirements depend on compile flags, I strongly recommended to have the fastest 68060 accelerator you can get your hands on.
+Schnecke was developed primarily for classic Amiga hardware, although it should compile and run on other systems with a sufficiently compatible C compiler. Actual memory requirements depend on the model and precision used.
 
-## Hardware
+### Hardware
 
-* Motorola 68060 accelerator
-* Accelerator local Fast RAM essential
-* ~100 MB RAM for TinyStories 15M FP32
-* Patience
+* Motorola 68k processor (68060 strongly recommended)
+* Sufficient RAM for the selected model and its runtime buffers
+* Accelerator-local Fast RAM highly recommended for best performance
 * Coffee
 
-## Software
+### Software
 
-* AmigaOS 3.x
-* GeekGadgets GCC environment
-* GCC 2.95+
-* libm
+* AmigaOS 3.x (for Amiga builds)
+* GCC 2.95+ or another sufficiently C89-compatible compiler
+* Standard C library and libm for building
+* Patience
 
 ## Building
 
@@ -55,7 +54,7 @@ To run Schnecke, you need both the actual model as well as the Tokenizer. To get
 
     wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin
 
-Other llama2.c-compatible models may also work provided sufficient RAM is available and patience to go with it. Andrej hosts a number of smaller and bigger models on his page.
+Other llama2.c-compatible models in both FP32 and Q8_0 formats have also been tested successfully, provided sufficient RAM is available and patience to go with it. Andrej hosts a number of smaller and bigger models on his page.
 
 And for the Tokenizer, use the one from Andrej's repository here;
 
@@ -78,39 +77,126 @@ You should receive something like this;
 * -z : Optional path to custom tokenizer, default $PROGDIR
 * -h : Prints Help.
 
+## Model Formats
+
+Schnecke supports the original llama2.c-compatible checkpoint format in both FP32 and Q8_0 quantized variants.
+
+Models can be used directly if they are already in a compatible format, or converted using the export and quantization utilities provided by Andrej Karpathy's original llama2.c project. These utilities have also been used to produce the Q8_0 checkpoints tested with Schnecke.
+
+Schnecke has been tested with TinyStories models ranging from 260K to 110M parameters in both FP32 and Q8_0 formats.
+
+A compatible tokenizer file is also required for text generation.
+
+## Quantization Support
+
+Schnecke 1.1.0 introduces support for Q8_0 quantized inference alongside the original FP32 implementation.
+
+The implementation was inspired by Andrej Karpathy's `runq.c`, but rather than directly porting and merging its code, Q8_0 support was integrated into Schnecke's existing inference engine. The goal was to preserve the portable, single-file C89 architecture while sharing as much of the inference code as possible between FP32 and quantized models.
+
+Q8_0 uses 8-bit signed integers to represent model weights, significantly reducing their memory footprint compared to FP32. Each group of quantized weights has an associated FP32 scaling factor, allowing the original approximate weight values to be reconstructed during computation.
+
+During inference, activation vectors are also quantized to 8-bit integers. Matrix multiplication then uses integer dot products, with the corresponding FP32 scaling factors applied to produce the final floating-point results.
+
+Besides the significant reduction in memory requirements, quantization can also improve inference performance, particularly on older processors where integer arithmetic may be more efficient than floating-point operations. The smaller model footprint can also reduce memory bandwidth requirements, which can be especially beneficial on vintage hardware.
+
+The implementation also handles quantization groups that cross matrix row boundaries, as well as partial groups where vector dimensions are not evenly divisible by the group size. This ensures correct operation with the checkpoint layouts produced by the original `llama2.c` quantization utilities.
+
+Both FP32 and Q8_0 models use the same transformer inference pipeline, with precision-specific routines handling the necessary differences in weight representation and matrix multiplication.
+
+## Endianness Support
+
+Schnecke supports both little-endian and big-endian systems, allowing the same compatible model checkpoints to be used across different hardware architectures.
+
+When necessary, byte-order conversion is performed automatically during checkpoint loading, ensuring that model weights and associated data are correctly interpreted by the host system.
+
+This conversion is performed only during loading, avoiding additional byte-swapping overhead during inference.
+
 ## Benchmarks
 
-| System        | Model           | Precision | tokens/s | Approx. sec/token |
-|---------------|-----------------|-----------|----------|-------------------|
-| FS-UAE (JIT)  | TinyStories 15M | FP32      | 0.046    | ~21s              |
-| A4000 / 68060 | TinyStories 15M | FP32      | 0.019    | ~51s              |
+Schnecke is not intended to be fast. Its purpose is experimentation, portability and technical curiosity. The following benchmarks illustrate inference performance across several model sizes, precision formats and hardware configurations.
 
-This project is not intended to be fast. The purpose is experimentation, portability and technical curiosity.
+All results are measured in tokens per second (tokens/s). Higher values indicate faster inference.
 
-FS-UAE ran on Mac Mini M2Pro
+### Amiga 4000 / Motorola 68060
+
+Benchmarks performed on a physical Amiga 4000 equipped with a CyberStorm Mk II 68060 accelerator.
+
+| Model | FP32 (tokens/s) | Q8_0 (tokens/s) |
+|---|---:|---:|
+| TinyStories 260K | 0.245949 | 0.263484 |
+| TinyStories 15M | 0.027751 | 0.043974 |
+| TinyStories 42M | 0.009404 | 0.020405 |
+| TinyStories 110M | N/A ** | ~0.00926 * |
+
+\* The 110M Q8_0 result is approximate, manually timed over the first 10 generated tokens.
+
+\*\* The 110M FP32 model could not be tested on the physical Amiga due to the lack of a sufficiently large contiguous memory region.
+
+### FS-UAE / Emulated Motorola 68060
+
+Benchmarks performed using FS-UAE on a Mac Mini M2 Pro, with JIT compilation enabled and disabled.
+
+| Model | FP32 (No JIT) | Q8_0 (No JIT) | FP32 (JIT) | Q8_0 (JIT) |
+|---|---:|---:|---:|---:|
+| TinyStories 260K | 0.501791 | 0.519211 | 1.497006 | 1.538740 |
+| TinyStories 15M | 0.063777 | 0.063716 | 0.156195 | 0.167569 |
+| TinyStories 42M | 0.025472 | 0.027683 | 0.060020 | 0.069495 |
+| TinyStories 110M | 0.009934 | 0.010774 | 0.022693 | 0.027283 |
+
+### Apple Silicon / Mac Mini M2 Pro
+
+Native benchmarks on a modern Apple Silicon system, included primarily as a portability and performance reference.
+
+| Model | FP32 (tokens/s) | Q8_0 (tokens/s) |
+|---|---:|---:|
+| TinyStories 260K | 4553.571429 | 4047.619048 |
+| TinyStories 15M | 121.480709 | 180.277350 |
+| TinyStories 42M | 35.212701 | 70.986381 |
+| TinyStories 110M | 12.103439 | 26.998186 |
+
+A dash indicates a configuration that was not benchmarked.
+
+### Memory Requirements
+
+| Model | FP32 RAM | Q8_0 RAM |
+|---|---:|---:|
+| TinyStories 260K | — | ~1 MB |
+| TinyStories 15M | ~64 MB | ~23 MB |
+| TinyStories 42M | ~202 MB | ~77 MB |
+| TinyStories 110M | ~492 MB | ~184.5 MB |
+
+Memory figures represent approximate observed runtime usage while running on the Amiga. The figures include model weights and runtime allocations, rather than checkpoint file sizes alone. Actual memory requirements may vary by platform and configuration.
+
+Quantization provides significant memory savings and can improve inference performance on vintage hardware. In particular, the smaller memory footprint may allow models to fit into faster accelerator-local RAM, reducing reliance on slower expansion memory.
 
 ## Known Limitations
 
-* FP32 only (currently)
-* Slow inference on classic hardware
-* Limited model compatibility
-* No GPU acceleration
-* Minimalist architecture by design
+* Supports only llama2.c-compatible model architectures and checkpoint formats.
 
 ## Future Ideas
 
-* FP16/Q8/Q4 support
-* Additional checkpoint formats
-* Optimization experiments
-* More portable backends
-* Benchmark comparisons
+* Q4 quantization support
+* Limited interactive chat mode
+
+## Version History
+
+**v1.1.0 — November 2026**
+* Added Q8_0 quantized inference support.
+* Internal refactoring and improvements.
+* Fixed several potential bugs.
+
+**v1.0.0 — May 2026**
+* Initial AmigaOS / Motorola 68k port of llama2.c.
+* Added big-endian compatibility.
 
 ## Credits
 
-Schnecke is based heavily on Andrej Karpathy’s excellent llama2.c project.
+Schnecke is based heavily on Andrej Karpathy's excellent `llama2.c` project, with Q8_0 quantization support inspired by his `runq.c` implementation.
 
 Original project:
-[https://github.com/karpathy/llama2.c](https://github.com/karpathy/llama2.c)
+https://github.com/karpathy/llama2.c
+
+OpenAI's ChatGPT was used as a research and development assistant, helping with implementation discussions, debugging, code review and technical documentation.
 
 ## License
 
