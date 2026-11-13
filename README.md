@@ -119,18 +119,18 @@ All results are measured in tokens per second (tokens/s). Higher values indicate
 
 ### Amiga 4000 / Motorola 68060
 
-Benchmarks performed on a physical Amiga 4000 equipped with a CyberStorm Mk II 68060 accelerator.
+Benchmarks performed on a physical Amiga 4000 equipped with a CyberStorm Mk II 68060 accelerator. Amiga binary compiled with the following compiler options:
+
+*`gcc -noixemul -std=c89 -O2 -m68060 schnecke.c -lm -o schnecke`*
 
 | Model | FP32 (tokens/s) | Q8_0 (tokens/s) |
 |---|---:|---:|
-| TinyStories 260K | 0.245949 | 0.263484 |
-| TinyStories 15M | 0.027751 | 0.043974 |
-| TinyStories 42M | 0.009404 | 0.020405 |
-| TinyStories 110M | N/A ** | ~0.00926 * |
+| TinyStories 260K | 2.100494 | 2.058444 |
+| TinyStories 15M | 0.157319 | 0.158210 |
+| TinyStories 42M | 0.033661 | 0.079628 |
+| TinyStories 110M | N/A * | 0.032935 |
 
-\* The 110M Q8_0 result is approximate, manually timed over the first 10 generated tokens.
-
-\*\* The 110M FP32 model could not be tested on the physical Amiga due to the lack of a sufficiently large contiguous memory region.
+\* The 110M FP32 model could not be tested on the physical Amiga due to the lack of a sufficiently large contiguous memory region.
 
 ### FS-UAE / Emulated Motorola 68060
 
@@ -138,10 +138,10 @@ Benchmarks performed using FS-UAE on a Mac Mini M2 Pro, with JIT compilation ena
 
 | Model | FP32 (No JIT) | Q8_0 (No JIT) | FP32 (JIT) | Q8_0 (JIT) |
 |---|---:|---:|---:|---:|
-| TinyStories 260K | 0.501791 | 0.519211 | 1.497006 | 1.538740 |
-| TinyStories 15M | 0.063777 | 0.063716 | 0.156195 | 0.167569 |
-| TinyStories 42M | 0.025472 | 0.027683 | 0.060020 | 0.069495 |
-| TinyStories 110M | 0.009934 | 0.010774 | 0.022693 | 0.027283 |
+| TinyStories 260K | 4.550321 | 4.786036 | 9.984338 | 11.87508 |
+| TinyStories 15M | 0.272410| 0.320005 | 0.436053 | 0.714089 |
+| TinyStories 42M | 0.101899| 0.127098 | 0.176897 | 0.331862 |
+| TinyStories 110M | 0.026209 | 0.060745 | 0.068410 | 0.135345 |
 
 ### Apple Silicon / Mac Mini M2 Pro
 
